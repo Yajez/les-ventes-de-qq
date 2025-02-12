@@ -12,6 +12,9 @@ function validateSale(member) {
     // Augmenter le compteur de ventes
     salesData[member]++;
     
+    // Sauvegarder les données des ventes dans le localStorage
+    saveSales();
+
     // Créer et afficher le "+1" de manière dynamique
     showSaleAnimation(member);
 
@@ -25,13 +28,24 @@ function validateSale(member) {
     updateRanking(sortedSales);
 }
 
+function saveSales() {
+    localStorage.setItem('salesData', JSON.stringify(salesData));
+}
+
+function loadSales() {
+    const savedSales = localStorage.getItem('salesData');
+    if (savedSales) {
+        salesData = JSON.parse(savedSales);
+    }
+}
+
 function updateRanking(sortedSales) {
     const rankingList = document.getElementById("ranking-list");
     rankingList.innerHTML = "";
     sortedSales.forEach(([member, sales]) => {
         const gain = calculateGain(sales);  // Calculer le gain en fonction des ventes
         const listItem = document.createElement("li");
-        listItem.innerHTML = `${member}: <span class="sales">${sales}</span> <span class="sales">vente(s)</span> - <span class="gain">${gain}€</span>`;  // Ajouter la classe 'sales' au mot "vente(s)"
+        listItem.innerHTML = `${member}: <span class="sales">${sales}</span> <span class="sales">vente(s)</span> - <span class="gain">${gain}€</span>`;
         rankingList.appendChild(listItem);
     });
 }
@@ -40,10 +54,10 @@ function resetSales() {
     for (let member in salesData) {
         salesData[member] = 0;
     }
+    saveSales();  // Sauvegarder l'état après la réinitialisation
     updateRanking(Object.entries(salesData).sort((a, b) => b[1] - a[1]));
 }
 
-// Fonction pour afficher l'animation "+1"
 function showSaleAnimation(member) {
     const saleAnimation = document.createElement("div");
     saleAnimation.classList.add("sale-animation");
@@ -58,13 +72,11 @@ function showSaleAnimation(member) {
     }, 1000);
 }
 
-// Fonction pour jouer le son
 function playSound() {
     const audio = new Audio('son_buzzer.mp3');  // Assurez-vous que le fichier son est dans le même répertoire
     audio.play();
 }
 
-// Fonction pour calculer le gain en fonction du nombre de ventes
 function calculateGain(sales) {
     if (sales >= 20) {
         return sales * 5;  // 5€ par vente à partir de 20 ventes
@@ -74,3 +86,8 @@ function calculateGain(sales) {
         return sales * 3;  // 3€ par vente entre 1 et 9 ventes
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSales();  // Charger les ventes depuis le localStorage
+    updateRanking(Object.entries(salesData).sort((a, b) => b[1] - a[1]));  // Mettre à jour le classement
+});

@@ -68,3 +68,4 @@ onValue(ref(database, "salesData"), (snapshot) => {
 // Exposer les fonctions globalement
 window.validateSale = validateSale;
 window.resetSales = resetSales;
+<script type="module" src="app.js"></script>

@@ -1,5 +1,5 @@
-// Données initiales des ventes
-let salesData = {
+// Charger les données des ventes depuis localStorage (si elles existent)
+let salesData = JSON.parse(localStorage.getItem('salesData')) || {
     "Julien": 0,
     "Thomas": 0,
     "Laetitia": 0,
@@ -14,6 +14,9 @@ function validateSale(member) {
     // Augmenter le compteur de ventes localement
     salesData[member]++;
     
+    // Sauvegarder les données dans localStorage
+    localStorage.setItem('salesData', JSON.stringify(salesData));
+
     // Afficher l'animation et jouer le son
     showSaleAnimation(member);
     playSound();
@@ -30,26 +33,9 @@ function updateRanking(sortedSales) {
     sortedSales.forEach(([member, sales]) => {
         const gain = calculateGain(sales);  // Calculer le gain en fonction des ventes
         const listItem = document.createElement("li");
-
-        // Créer les 3 colonnes (prénom, ventes, gain)
-        const nameColumn = document.createElement("div");
-        nameColumn.classList.add("column");
-        nameColumn.textContent = member;
-
-        const salesColumn = document.createElement("div");
-        salesColumn.classList.add("column");
-        // Modification ici pour enlever le tiret après "vente(s)"
-        salesColumn.textContent = `${sales} vente${sales > 1 ? 's' : ''}`;
-
-        const gainColumn = document.createElement("div");
-        gainColumn.classList.add("column");
-        gainColumn.textContent = `${gain}€`;
-
-        // Ajouter les colonnes au li
-        listItem.appendChild(nameColumn);
-        listItem.appendChild(salesColumn);
-        listItem.appendChild(gainColumn);
-
+        listItem.innerHTML = `<div class="column">${member}</div>
+                              <div class="column"><span class="sales">${sales}</span> <span class="sales-word">vente(s)</span></div>
+                              <div class="column"><span class="gain">${gain}€</span></div>`;
         rankingList.appendChild(listItem);
     });
 }
@@ -70,6 +56,9 @@ function resetSales() {
     for (let member in salesData) {
         salesData[member] = 0;
     }
+    // Sauvegarder les données réinitialisées dans localStorage
+    localStorage.setItem('salesData', JSON.stringify(salesData));
+
     updateRanking(Object.entries(salesData).sort((a, b) => b[1] - a[1]));
 }
 
@@ -95,15 +84,8 @@ function playSound() {
     audio.play();
 }
 
-// Fonction pour récupérer les données de Firebase (si nécessaire)
-function getSalesDataFromFirebase() {
-    // Remplace ce code avec la méthode de récupération depuis Firebase
-    // par exemple : onValue(ref(database, 'salesData'), (snapshot) => {...});
-}
-
-// Écouter les changements en temps réel dans la base de données Firebase (si tu utilises Firebase)
-// onValue(ref(database, 'salesData'), (snapshot) => {
-//     salesData = snapshot.val() || {};  // Prendre les données ou un objet vide si pas encore initialisé
-//     let sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
-//     updateRanking(sortedSales);
-// });
+// Initialiser le classement dès le chargement de la page
+window.onload = function() {
+    let sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
+    updateRanking(sortedSales);
+};

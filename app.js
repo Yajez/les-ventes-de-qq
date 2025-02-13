@@ -6,7 +6,8 @@ let salesData = JSON.parse(localStorage.getItem('salesData')) || {
     "Charles": 0,
     "Mehdi": 0,
     "Guillaume": 0,
-    "Oussama": 0
+    "Oussama": 0,
+    "Timothée": 0
 };
 
 // Fonction pour valider une vente et mettre à jour le classement

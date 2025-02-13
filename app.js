@@ -2,18 +2,20 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 
-// 2. Configuration Firebase
+// Configuration Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB9tjKvcFRxPPAkrfjErEUT_olHEaYvzQg",
   authDomain: "lesventesdeqq.firebaseapp.com",
+  databaseURL: "https://lesventesdeqq-default-rtdb.europe-west1.firebasedatabase.app/",
   projectId: "lesventesdeqq",
-  storageBucket: "lesventesdeqq.firebasestorage.app",
+  storageBucket: "lesventesdeqq.appspot.com",
   messagingSenderId: "1015169103890",
   appId: "1:1015169103890:web:93208d282f91ddb09e00cb"
 };
 
-// 3. Initialisation de l'application Firebase
+// Initialisation Firebase
 const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 // 4. Récupérer la base de données
 const database = getDatabase(app);

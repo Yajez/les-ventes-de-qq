@@ -1,98 +1,25 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Les ventes de QQ</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-            background-color: black;  /* Fond noir */
-            color: white;  /* Texte en blanc pour tout le contenu */
-        }
-        h1, h2 {
-            color: white;  /* Titre en blanc */
-        }
-        p {
-            color: white;  /* Texte du paragraphe en blanc */
-        }
-        button {
-            font-size: 20px;
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-            background-color: #4CAF50;  /* Couleur du bouton */
-            color: white;  /* Texte des boutons en blanc */
-            border: none;
-            border-radius: 5px;
-            position: relative;  /* Position relative pour pouvoir ajouter l'animation */
-        }
-        button:hover {
-            background-color: #45a049;  /* Couleur du bouton lorsqu'on survole */
-        }
-        #ranking {
-            margin-top: 20px;
-            text-align: left;
-        }
-        #ranking-list {
-            color: white;  /* Texte du classement en blanc */
-        }
-        .sale-animation {
-            position: absolute;
-            top: -30px;  /* Ajuste la position au-dessus du bouton */
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 30px;  /* Taille du "+1" */
-            color: red;  /* Couleur rouge */
-            animation: scaleUp 1s ease-out;
-        }
-
-        .gain {
-            color: green;  /* Gain en vert */
-        }
-
-        .sales {
-            color: blue;  /* Nombre de ventes et le mot "vente(s)" en bleu */
-        }
-
-        @keyframes scaleUp {
-            0% {
-                transform: translateX(-50%) scale(0);  /* Début de l'animation (petit) */
-                opacity: 0;
-            }
-            50% {
-                transform: translateX(-50%) scale(1.5);  /* À son maximum (plus grand) */
-                opacity: 1;
-            }
-            100% {
-                transform: translateX(-50%) scale(0);  /* Rétrécit jusqu'à disparaître */
-                opacity: 0;
-            }
-        }
-    </style>
+    <title>Les Ventes de QQ</title>
 </head>
 <body>
+    <h1>Les Ventes de QQ</h1>
+    <ul id="ranking-list"></ul>
 
-    <h1>Les ventes de QQ</h1>
-    <p>Cliquez sur votre nom pour valider une vente.</p>
+    <!-- Boutons pour les membres -->
+    <button onclick="validateSale('Julien')">Julien</button>
+    <button onclick="validateSale('Thomas')">Thomas</button>
+    <button onclick="validateSale('Laetitia')">Laetitia</button>
+    <button onclick="validateSale('Charles')">Charles</button>
+    <button onclick="validateSale('Mehdi')">Mehdi</button>
+    <button onclick="validateSale('Guillaume')">Guillaume</button>
+    <button onclick="validateSale('Oussama')">Oussama</button>
 
-    <div>
-        <button onclick="validateSale('Julien')">Julien</button>
-        <button onclick="validateSale('Thomas')">Thomas</button>
-        <button onclick="validateSale('Laetitia')">Laetitia</button>
-        <button onclick="validateSale('Charles')">Charles</button>
-        <button onclick="validateSale('Mehdi')">Mehdi</button>
-        <button onclick="validateSale('Guillaume')">Guillaume</button>
-        <button onclick="validateSale('Oussama')">Oussama</button>
-    </div>
-
-    <div id="ranking">
-        <h2>Classement des Meilleurs Vendeurs</h2>
-        <ul id="ranking-list"></ul>
-        <button onclick="resetSales()">Réinitialiser les Ventes</button>
-    </div>
+    <br><br>
+    <button onclick="resetSales()">Réinitialiser les ventes</button>
 
     <script src="app.js"></script>
 </body>

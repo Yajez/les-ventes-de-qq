@@ -115,11 +115,11 @@
 <body>
   <header>
     <h1>Les Ventes de QQ</h1>
-    <p>Suivez les ventes de votre équipe en temps réel !</p>
+    <p>Suivez les ventes / migration(s) de votre équipe en temps réel !</p>
   </header>
 
   <div class="container">
-    <h2>Valider une Vente</h2>
+    <h2>Valider une Vente / Migration</h2>
     <div id="buttons">
       <button onclick="validateSale('Julien')">Julien</button>
       <button onclick="validateSale('Thomas')">Thomas</button>
@@ -130,19 +130,77 @@
       <button onclick="validateSale('Oussama')">Oussama</button>
     </div>
 
-    <h2>Classement</h2>
+    <h2>Classement des Vente(s) / Migration(s)</h2>
     <ul id="ranking-list">
       <!-- Le classement sera ajouté ici dynamiquement -->
     </ul>
 
     <h2>Options</h2>
-    <button onclick="resetSales()">Réinitialiser les ventes</button>
+    <button onclick="resetSales()">Réinitialiser les ventes / migration(s)</button>
   </div>
 
   <footer>
     <p>&copy; 2025 - Les Ventes de QQ</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    // Stockage des ventes et des gains
+    const salesData = {
+      Julien: { sales: 0, earnings: 0 },
+      Thomas: { sales: 0, earnings: 0 },
+      Laetitia: { sales: 0, earnings: 0 },
+      Charles: { sales: 0, earnings: 0 },
+      Mehdi: { sales: 0, earnings: 0 },
+      Guillaume: { sales: 0, earnings: 0 },
+      Oussama: { sales: 0, earnings: 0 }
+    };
+
+    // Calcul des gains
+    function calculateEarnings(sales) {
+      if (sales >= 20) {
+        return sales * 5;
+      } else if (sales >= 10) {
+        return sales * 4;
+      } else {
+        return sales * 3;
+      }
+    }
+
+    // Valider une vente
+    function validateSale(name) {
+      if (salesData[name]) {
+        salesData[name].sales++;
+        salesData[name].earnings = calculateEarnings(salesData[name].sales);
+        updateRanking();
+      }
+    }
+
+    // Mettre à jour le classement
+    function updateRanking() {
+      const rankingList = document.getElementById("ranking-list");
+      rankingList.innerHTML = "";
+
+      const sortedData = Object.entries(salesData).sort((a, b) => b[1].sales - a[1].sales);
+
+      sortedData.forEach(([name, data]) => {
+        const listItem = document.createElement("li");
+        listItem.innerHTML = `
+          <span>${name}</span>
+          <span class="sales">${data.sales} vente(s) / migration(s)</span>
+          <span class="gain">${data.earnings} €</span>
+        `;
+        rankingList.appendChild(listItem);
+      });
+    }
+
+    // Réinitialiser les ventes et les gains
+    function resetSales() {
+      for (let name in salesData) {
+        salesData[name].sales = 0;
+        salesData[name].earnings = 0;
+      }
+      updateRanking();
+    }
+  </script>
 </body>
 </html>

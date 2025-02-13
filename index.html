@@ -7,9 +7,9 @@
   <style>
     /* Styles globaux */
     body {
-      background-color: #333; /* Fond gris foncé */
-      color: white; /* Texte en blanc */
-      font-family: Arial, sans-serif; /* Police moderne */
+      background-color: #333;
+      color: white;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
     }
@@ -21,8 +21,8 @@
     }
   
     button {
-      background-color: #444; /* Boutons gris foncé */
-      color: white; /* Texte des boutons en blanc */
+      background-color: #444;
+      color: white;
       border: none;
       padding: 10px 20px;
       border-radius: 5px;
@@ -31,7 +31,7 @@
     }
   
     button:hover {
-      background-color: #666; /* Couleur plus claire au survol */
+      background-color: #666;
     }
   
     .container {
@@ -42,7 +42,7 @@
     }
   
     ul {
-      list-style-type: none; /* Enlever les puces */
+      list-style-type: none;
       padding: 0;
       width: 100%;
       max-width: 500px;
@@ -52,10 +52,12 @@
       padding: 10px 0;
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid white;
     }
   
     .sale-animation {
-      color: rgb(127, 47, 255); /* Animation "+1" en vert clair */
+      color: rgb(127, 47, 255);
       font-weight: bold;
       position: absolute;
       animation: fadeOut 1s ease-in-out;
@@ -79,42 +81,14 @@
       padding: 10px;
     }
   
-    .column {
-      flex: 1; /* Faire en sorte que chaque colonne occupe la même largeur */
-      text-align: center;
-    }
-  
-    li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  
-    .no-border {
-      border-bottom: none; /* Enlever la bordure entre les éléments */
-    }
-  
-    /* Style pour les gains en or */
     .gain {
-      color: gold; /* Gains en couleur or */
+      color: gold;
       font-weight: bold;
     }
   
-    /* Style pour les ventes en bleu clair */
     .sales {
-      color: lightblue; /* Nombre de ventes en bleu clair */
+      color: lightblue;
       font-weight: bold;
-    }
-  
-    .sales-word {
-      color: lightblue; /* Mot "vente(s)" en bleu clair */
-      font-weight: bold;
-    }
-
-    .migrations {
-      color: lightblue; /* Style pour "/ migrations" */
-      font-weight: bold;
-      font-style: italic;
     }
   </style>
 </head>
@@ -150,6 +124,52 @@
     <p>&copy; 2025 - Les Ventes de QQ</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    const salesData = {};
+
+    // Fonction pour valider une vente
+    function validateSale(person) {
+      if (!salesData[person]) {
+        salesData[person] = 0;
+      }
+      salesData[person]++;
+      updateRanking();
+      showSaleAnimation(person);
+    }
+
+    // Fonction pour afficher une animation "+1"
+    function showSaleAnimation(person) {
+      const animation = document.createElement('div');
+      animation.className = 'sale-animation';
+      animation.textContent = `+1 ${person}`;
+      document.body.appendChild(animation);
+      setTimeout(() => animation.remove(), 1000);
+    }
+
+    // Fonction pour mettre à jour le classement
+    function updateRanking() {
+      const rankingList = document.getElementById('ranking-list');
+      rankingList.innerHTML = '';
+
+      const sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
+
+      sortedSales.forEach(([person, sales]) => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+          <span>${person}</span>
+          <span class="sales">${sales} vente(s)</span>
+        `;
+        rankingList.appendChild(listItem);
+      });
+    }
+
+    // Fonction pour réinitialiser les ventes
+    function resetSales() {
+      for (let person in salesData) {
+        salesData[person] = 0;
+      }
+      updateRanking();
+    }
+  </script>
 </body>
 </html>

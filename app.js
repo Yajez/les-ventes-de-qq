@@ -1,71 +1,93 @@
-// Import des modules Firebase nécessaires
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, onValue } from "firebase/database";
-
-// Configuration Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyB9tjKvcFRxPPAkrfjErEUT_olHEaYvzQg",
-  authDomain: "lesventesdeqq.firebaseapp.com",
-  databaseURL: "https://lesventesdeqq-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "lesventesdeqq",
-  storageBucket: "lesventesdeqq.appspot.com",
-  messagingSenderId: "1015169103890",
-  appId: "1:1015169103890:web:93208d282f91ddb09e00cb"
+let salesData = {
+    "Julien": 0,
+    "Thomas": 0,
+    "Laetitia": 0,
+    "Charles": 0,
+    "Mehdi": 0,
+    "Guillaume": 0,
+    "Oussama": 0
 };
 
-// Initialiser Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-
-// Initialisation des données locales
-let salesData = {};
-
-// Fonction pour valider une vente
 function validateSale(member) {
-  salesData[member]++;
+    // Augmenter le compteur de ventes
+    salesData[member]++;
+    
+    // Sauvegarder les données des ventes dans le localStorage
+    saveSales();
 
-  // Mettre à jour Firebase
-  set(ref(database, `salesData/${member}`), salesData[member])
-    .then(() => console.log(`Mise à jour réussie pour ${member}`))
-    .catch((error) => console.error(`Erreur de mise à jour :`, error));
+    // Créer et afficher le "+1" de manière dynamique
+    showSaleAnimation(member);
 
-  updateRanking();
+    // Jouer le son de validation
+    playSound();
+
+    // Trier les membres par nombre de ventes
+    let sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
+
+    // Mettre à jour le classement à l'écran
+    updateRanking(sortedSales);
 }
 
-// Fonction pour réinitialiser les ventes
+function saveSales() {
+    localStorage.setItem('salesData', JSON.stringify(salesData));
+}
+
+function loadSales() {
+    const savedSales = localStorage.getItem('salesData');
+    if (savedSales) {
+        salesData = JSON.parse(savedSales);
+    }
+}
+
+function updateRanking(sortedSales) {
+    const rankingList = document.getElementById("ranking-list");
+    rankingList.innerHTML = "";
+    sortedSales.forEach(([member, sales]) => {
+        const gain = calculateGain(sales);  // Calculer le gain en fonction des ventes
+        const listItem = document.createElement("li");
+        listItem.innerHTML = `${member}: <span class="sales">${sales}</span> <span class="sales">vente(s)</span> - <span class="gain">${gain}€</span>`;
+        rankingList.appendChild(listItem);
+    });
+}
+
 function resetSales() {
-  for (const member in salesData) {
-    salesData[member] = 0;
-  }
-
-  // Mettre à jour Firebase
-  set(ref(database, `salesData`), salesData)
-    .then(() => console.log("Ventes réinitialisées !"))
-    .catch((error) => console.error(`Erreur lors de la réinitialisation :`, error));
-
-  updateRanking();
+    for (let member in salesData) {
+        salesData[member] = 0;
+    }
+    saveSales();  // Sauvegarder l'état après la réinitialisation
+    updateRanking(Object.entries(salesData).sort((a, b) => b[1] - a[1]));
 }
 
-// Fonction pour mettre à jour le classement
-function updateRanking() {
-  const rankingList = document.getElementById("ranking-list");
-  rankingList.innerHTML = "";
+function showSaleAnimation(member) {
+    const saleAnimation = document.createElement("div");
+    saleAnimation.classList.add("sale-animation");
+    saleAnimation.textContent = "+1";
 
-  const sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
-  sortedSales.forEach(([member, sales]) => {
-    const listItem = document.createElement("li");
-    listItem.textContent = `${member}: ${sales} ventes`;
-    rankingList.appendChild(listItem);
-  });
+    const button = document.querySelector(`button[onclick="validateSale('${member}')"]`);
+
+    button.appendChild(saleAnimation);
+
+    setTimeout(() => {
+        saleAnimation.remove();
+    }, 1000);
 }
 
-// Écoute en temps réel pour les mises à jour de Firebase
-onValue(ref(database, "salesData"), (snapshot) => {
-  salesData = snapshot.val() || {};
-  updateRanking();
+function playSound() {
+    const audio = new Audio('son_buzzer.mp3');  // Assurez-vous que le fichier son est dans le même répertoire
+    audio.play();
+}
+
+function calculateGain(sales) {
+    if (sales >= 20) {
+        return sales * 5;  // 5€ par vente à partir de 20 ventes
+    } else if (sales >= 10) {
+        return sales * 4;  // 4€ par vente entre 10 et 19 ventes
+    } else {
+        return sales * 3;  // 3€ par vente entre 1 et 9 ventes
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSales();  // Charger les ventes depuis le localStorage
+    updateRanking(Object.entries(salesData).sort((a, b) => b[1] - a[1]));  // Mettre à jour le classement
 });
-
-// Exposer les fonctions globalement
-window.validateSale = validateSale;
-window.resetSales = resetSales;
-<script type="module" src="app.js"></script>

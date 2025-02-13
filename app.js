@@ -1,23 +1,3 @@
-// Importer les modules Firebase nécessaires
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, onValue } from "firebase/database";
-
-// Configuration de Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyB9tjKvcFRxPPAkrfjErEUT_olHEaYvzQg",
-    authDomain: "lesventesdeqq.firebaseapp.com",
-    projectId: "lesventesdeqq",
-    storageBucket: "lesventesdeqq.firebasestorage.app",
-    messagingSenderId: "1015169103890",
-    appId: "1:1015169103890:web:93208d282f91ddb09e00cb"
-};
-
-// Initialisation de Firebase
-const app = initializeApp(firebaseConfig);
-
-// Récupérer la base de données Firebase
-const database = getDatabase(app);
-
 // Définir les données des ventes
 let salesData = {
     "Julien": 0,
@@ -30,13 +10,10 @@ let salesData = {
     "Timothée": 0
 };
 
-// Fonction pour valider une vente et mettre à jour la base de données
+// Fonction pour valider une vente
 function validateSale(member) {
     // Augmenter le compteur de ventes localement
     salesData[member]++;
-
-    // Mettre à jour la base de données Firebase
-    set(ref(database, 'salesData/' + member), salesData[member]);
 
     // Afficher l'animation et jouer le son
     showSaleAnimation(member);
@@ -70,7 +47,7 @@ function playSound() {
 // Fonction pour afficher le classement des ventes
 function updateRanking(sortedSales) {
     const rankingList = document.getElementById("ranking-list");
-    rankingList.innerHTML = "";  // Réinitialiser le contenu de la liste
+    rankingList.innerHTML = ""; // Réinitialiser le contenu de la liste
     sortedSales.forEach(([member, sales]) => {
         const listItem = document.createElement("li");
         listItem.innerHTML = `${member}: ${sales} vente(s)`;
@@ -85,10 +62,3 @@ function resetSales() {
     }
     updateRanking(Object.entries(salesData).sort((a, b) => b[1] - a[1]));
 }
-
-// Écouter les changements en temps réel dans la base de données Firebase
-onValue(ref(database, 'salesData'), (snapshot) => {
-    salesData = snapshot.val() || {}; // Mettre à jour les données locales avec celles de Firebase
-    let sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
-    updateRanking(sortedSales);
-});

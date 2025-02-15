@@ -35,8 +35,7 @@
     }
 
     .reset-button {
-      background-color: red; /* Bouton reset en rouge */
-      color: white;
+      background-color: red;
     }
 
     .reset-button:hover {
@@ -75,18 +74,21 @@
       text-align: center;
     }
 
-    /* Style pour le pop-up */
+    /* Style du pop-up en plein écran */
     .popup {
       position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(0, 255, 0, 0.8);
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: green; /* Fond vert opaque */
       color: white;
-      padding: 15px 20px;
-      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
       font-weight: bold;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      text-align: center;
       opacity: 1;
       transition: opacity 0.5s ease-in-out;
       z-index: 1000;
@@ -203,7 +205,7 @@
         setTimeout(() => {
             popup.classList.add("fade-out");
             setTimeout(() => popup.remove(), 500);
-        }, 2000);
+        }, 1500);
     }
 
     window.onload = updateRanking;

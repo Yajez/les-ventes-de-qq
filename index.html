@@ -34,14 +34,6 @@
       background-color: #666;
     }
 
-    .reset-button {
-      background-color: red;
-    }
-
-    .reset-button:hover {
-      background-color: darkred;
-    }
-
     .container {
       display: flex;
       flex-direction: column;
@@ -62,61 +54,30 @@
       justify-content: space-between;
     }
 
-    footer {
-      text-align: center;
-      margin-top: 20px;
-      border-top: 2px solid white;
-      padding: 10px;
-    }
-
-    .column {
-      flex: 1;
-      text-align: center;
-    }
-
-    /* Style du pop-up en plein écran */
+    /* Style pour le pop-up */
     .popup {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-color: green; /* Fond vert opaque */
+      background-color: green;
       color: white;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 40px;
+      font-size: 24px;
       font-weight: bold;
-      text-align: center;
-      opacity: 1;
-      transition: opacity 0.5s ease-in-out;
       z-index: 1000;
     }
 
-    .popup.fade-out {
-      opacity: 0;
+    /* Style pour le bouton reset */
+    .reset-btn {
+      background-color: red;
     }
-
-    .gain {
-      color: gold;
-      font-weight: bold;
-    }
-
-    .sales {
-      color: lightblue;
-      font-weight: bold;
-    }
-
-    .sales-word {
-      color: lightblue;
-      font-weight: bold;
-    }
-
   </style>
 </head>
 <body>
-
   <header>
     <h1>Les Ventes de QQ</h1>
     <p>Suivez les ventes / migration(s) de votre équipe en temps réel !</p>
@@ -136,41 +97,63 @@
     </div>
 
     <h2>Classement des Vente(s) / Migration(s)</h2>
-    <ul id="ranking-list"></ul>
+    <ul id="ranking-list">
+      <!-- Le classement sera ajouté ici dynamiquement -->
+    </ul>
 
     <h2>Options</h2>
-    <button class="reset-button" onclick="resetSales()">Réinitialiser les ventes / migration(s)</button>
+    <button class="reset-btn" onclick="resetSales()">Réinitialiser les ventes / migration(s)</button>
   </div>
 
   <footer>
     <p>&copy; 2025 - Les Ventes de QQ</p>
   </footer>
 
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    let salesData = JSON.parse(localStorage.getItem('salesData')) || {
-        "Julien": 0,
-        "Thomas": 0,
-        "Laetitia": 0,
-        "Charles": 0,
-        "Mehdi": 0,
-        "Guillaume": 0,
-        "Oussama": 0,
-        "Timothée": 0
-    };
+    const SUPABASE_URL = "https://puibgqzzofpvrmjadddu.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1aWJncXp6b2ZwdnJtamFkZGR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk2NDI5NDQsImV4cCI6MjA1NTIxODk0NH0.RX31oBb01V0u2a2J95vXXj2gEBA9fmO38-Sk0WeTK8I";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function validateSale(member) {
-        salesData[member]++;
-        localStorage.setItem('salesData', JSON.stringify(salesData));
-        showPopup("✅ Vente ajoutée pour " + member + " !");
-        updateRanking();
+    // Ajouter une vente
+    async function validateSale(member) {
+        let { data, error } = await supabase
+            .from("sales")
+            .select("*")
+            .eq("member", member)
+            .single();
+
+        let newSales = data ? data.sales + 1 : 1;
+
+        const { error: upsertError } = await supabase
+            .from("sales")
+            .upsert([{ member, sales: newSales }], { onConflict: ['member'] });
+
+        if (upsertError) {
+            console.error("Erreur :", upsertError);
+        } else {
+            showPopup("✅ Vente ajoutée !");
+            updateRanking();
+        }
     }
 
-    function updateRanking() {
+    // Mettre à jour le classement
+    async function updateRanking() {
+        const { data: sales, error } = await supabase
+            .from("sales")
+            .select("*")
+            .order("sales", { ascending: false });
+
+        if (error) {
+            console.error("Erreur de chargement :", error);
+            return;
+        }
+
         const rankingList = document.getElementById("ranking-list");
         rankingList.innerHTML = "";
-        let sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
-
-        sortedSales.forEach(([member, sales]) => {
+        
+        sales.forEach(({ member, sales }) => {
             const gain = calculateGain(sales);
             const listItem = document.createElement("li");
             listItem.innerHTML = `<div class="column">${member}</div>
@@ -180,36 +163,48 @@
         });
     }
 
-    function calculateGain(sales) {
-        if (sales >= 20) return sales * 5;
-        if (sales >= 10) return sales * 4;
-        return sales * 3;
-    }
+    // Réinitialiser les ventes
+    async function resetSales() {
+        if (confirm("Voulez-vous réinitialiser toutes les ventes ?")) {
+            const { error } = await supabase
+                .from("sales")
+                .delete()
+                .gt("sales", 0);
 
-    function resetSales() {
-        if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les ventes ?')) {
-            for (let member in salesData) {
-                salesData[member] = 0;
+            if (error) {
+                console.error("Erreur de réinitialisation :", error);
+            } else {
+                updateRanking();
             }
-            localStorage.setItem('salesData', JSON.stringify(salesData));
-            updateRanking();
         }
     }
 
+    // Calcul du gain
+    function calculateGain(sales) {
+        if (sales >= 20) {
+            return sales * 5;
+        } else if (sales >= 10) {
+            return sales * 4;
+        } else {
+            return sales * 3;
+        }
+    }
+
+    // Affichage du popup
     function showPopup(message) {
         const popup = document.createElement("div");
         popup.classList.add("popup");
         popup.textContent = message;
+
         document.body.appendChild(popup);
 
         setTimeout(() => {
-            popup.classList.add("fade-out");
-            setTimeout(() => popup.remove(), 500);
+            popup.remove();
         }, 1500);
     }
 
+    // Charger le classement au démarrage
     window.onload = updateRanking;
   </script>
-
 </body>
 </html>

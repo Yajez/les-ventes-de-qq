@@ -7,9 +7,9 @@
   <style>
     /* Styles globaux */
     body {
-      background-color: #333; /* Fond gris foncé */
-      color: white; /* Texte en blanc */
-      font-family: Arial, sans-serif; /* Police moderne */
+      background-color: #333;
+      color: white;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
     }
@@ -19,10 +19,15 @@
       padding: 20px;
       border-bottom: 2px solid white;
     }
+
+    /* Le titre "Les Ventes de QQ" en or */
+    h1 {
+      color: gold;
+    }
   
     button {
-      background-color: #444; /* Boutons gris foncé */
-      color: white; /* Texte des boutons en blanc */
+      background-color: #444;
+      color: white;
       border: none;
       padding: 10px 20px;
       border-radius: 5px;
@@ -31,7 +36,12 @@
     }
   
     button:hover {
-      background-color: #666; /* Couleur plus claire au survol */
+      background-color: #666;
+    }
+
+    /* Nouveau style pour le bouton Reset en rouge */
+    button[onclick="resetSales()"] {
+      background-color: red;
     }
   
     .container {
@@ -40,74 +50,65 @@
       align-items: center;
       padding: 20px;
     }
-  
+
     ul {
-      list-style-type: none; /* Enlever les puces */
+      list-style-type: none;
       padding: 0;
       width: 100%;
       max-width: 500px;
     }
-  
+
     li {
       padding: 10px 0;
       display: flex;
       justify-content: space-between;
     }
-  
-    .sale-animation {
-      color: rgb(127, 47, 255); /* Animation "+1" en vert clair */
+
+    /* Pop-up vert pour l'animation */
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: green;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
       font-weight: bold;
-      position: absolute;
-      animation: fadeOut 1s ease-in-out;
+      z-index: 1000;
+      cursor: pointer;
     }
-  
-    @keyframes fadeOut {
-      0% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-    }
-  
+
     footer {
       text-align: center;
       margin-top: 20px;
       border-top: 2px solid white;
       padding: 10px;
     }
-  
+
     .column {
-      flex: 1; /* Faire en sorte que chaque colonne occupe la même largeur */
+      flex: 1;
       text-align: center;
     }
-  
-    li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  
-    .no-border {
-      border-bottom: none; /* Enlever la bordure entre les éléments */
-    }
-  
-    /* Style pour les gains en or */
-    .gain {
-      color: gold; /* Gains en couleur or */
-      font-weight: bold;
-    }
-  
-    /* Style pour les ventes en bleu clair */
+
+    /* Couleur pour le nombre de ventes (bleu clair) */
     .sales {
-      color: lightblue; /* Nombre de ventes en bleu clair */
+      color: lightblue;
       font-weight: bold;
     }
-  
+
+    /* Couleur pour les gains (or) */
+    .gain {
+      color: gold;
+      font-weight: bold;
+    }
+
+    /* Mot "vente(s)" en bleu ciel */
     .sales-word {
-      color: lightblue; /* Mot "vente(s)" en bleu clair */
+      color: lightblue;
       font-weight: bold;
     }
   </style>
@@ -119,7 +120,7 @@
   </header>
 
   <div class="container">
-    <h2>Valider une Vente / Migration</h2>
+    <h2>Impossible n'est pas Quevillais</h2>
     <div id="buttons">
       <button onclick="validateSale('Julien')">Julien</button>
       <button onclick="validateSale('Thomas')">Thomas</button>
@@ -128,13 +129,11 @@
       <button onclick="validateSale('Mehdi')">Mehdi</button>
       <button onclick="validateSale('Guillaume')">Guillaume</button>
       <button onclick="validateSale('Oussama')">Oussama</button>
-      <button onclick="validateSale('Timothee')">Timothée</button> <!-- Nouveau membre ajouté -->
+      <button onclick="validateSale('Timothee')">Timothée</button>
     </div>
 
     <h2>Classement des Vente(s) / Migration(s)</h2>
-    <ul id="ranking-list">
-      <!-- Le classement sera ajouté ici dynamiquement -->
-    </ul>
+    <ul id="ranking-list"></ul>
 
     <h2>Options</h2>
     <button onclick="resetSales()">Réinitialiser les ventes / migration(s)</button>
@@ -147,29 +146,21 @@
   <script>
     // Charger les données des ventes depuis localStorage (si elles existent)
     let salesData = JSON.parse(localStorage.getItem('salesData')) || {
-        "Julien": 0,
-        "Thomas": 0,
-        "Laetitia": 0,
-        "Charles": 0,
-        "Mehdi": 0,
-        "Guillaume": 0,
-        "Oussama": 0,
-        "Timothée": 0
+      "Julien": 0,
+      "Thomas": 0,
+      "Laetitia": 0,
+      "Charles": 0,
+      "Mehdi": 0,
+      "Guillaume": 0,
+      "Oussama": 0,
+      "Timothee": 0
     };
 
     // Fonction pour valider une vente et mettre à jour le classement
     function validateSale(member) {
-        // Augmenter le compteur de ventes localement
         salesData[member]++;
-        
-        // Sauvegarder les données dans localStorage
         localStorage.setItem('salesData', JSON.stringify(salesData));
-
-        // Afficher l'animation et jouer le son
         showSaleAnimation(member);
-        playSound();
-
-        // Trier et afficher le classement
         let sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
         updateRanking(sortedSales);
     }
@@ -179,7 +170,7 @@
         const rankingList = document.getElementById("ranking-list");
         rankingList.innerHTML = "";
         sortedSales.forEach(([member, sales]) => {
-            const gain = calculateGain(sales);  // Calculer le gain en fonction des ventes
+            const gain = calculateGain(sales);
             const listItem = document.createElement("li");
             listItem.innerHTML = `<div class="column">${member}</div>
                                   <div class="column"><span class="sales">${sales}</span> <span class="sales-word">vente(s)</span></div>
@@ -191,51 +182,34 @@
     // Fonction pour calculer le gain en fonction du nombre de ventes
     function calculateGain(sales) {
         if (sales >= 20) {
-            return sales * 5;  // 5€ par vente à partir de 20 ventes
+            return sales * 5;
         } else if (sales >= 10) {
-            return sales * 4;  // 4€ par vente entre 10 et 19 ventes
+            return sales * 4;
         } else {
-            return sales * 3;  // 3€ par vente entre 1 et 9 ventes
+            return sales * 3;
         }
     }
 
     // Fonction pour réinitialiser les ventes
     function resetSales() {
-        // Afficher une fenêtre de confirmation avant de réinitialiser
-        if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les ventes ? Cela réinitialisera toutes les données.')) {
-            // Réinitialiser les données
+        if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les ventes ?')) {
             for (let member in salesData) {
                 salesData[member] = 0;
             }
-
-            // Sauvegarder les données réinitialisées dans localStorage
             localStorage.setItem('salesData', JSON.stringify(salesData));
-
-            // Mettre à jour l'affichage du classement
             updateRanking(Object.entries(salesData).sort((a, b) => b[1] - a[1]));
         }
     }
 
-    // Fonction pour afficher l'animation "+1"
+    // Fonction pour afficher le pop-up vert avec le prénom
     function showSaleAnimation(member) {
-        const saleAnimation = document.createElement("div");
-        saleAnimation.classList.add("sale-animation");
-        saleAnimation.textContent = "+1";
-        saleAnimation.style.color = "red";  // Mettre en rouge
-        saleAnimation.style.fontSize = "50px";  // Augmenter la taille
-
-        const button = document.querySelector(`button[onclick="validateSale('${member}')"]`);
-        button.appendChild(saleAnimation);
-
-        setTimeout(() => {
-            saleAnimation.remove();
-        }, 1000);
-    }
-
-    // Fonction pour jouer le son
-    function playSound() {
-        const audio = new Audio('son_buzzer.mp3');  // Assurez-vous que le fichier son est dans le même répertoire
-        audio.play();
+        const popup = document.createElement("div");
+        popup.classList.add("popup");
+        popup.textContent = `Bien joué ${member}, tu viens de faire une vente !`;
+        popup.onclick = function() {
+            popup.remove();
+        };
+        document.body.appendChild(popup);
     }
 
     // Initialiser le classement dès le chargement de la page

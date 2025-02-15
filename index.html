@@ -40,7 +40,7 @@
     }
 
     /* Nouveau style pour le bouton Reset en rouge */
-    button[onclick="resetSales()"] {
+    button[onclick="resetSalesData()"] {
       background-color: red;
     }
   
@@ -95,7 +95,7 @@
     }
 
     /* Couleur pour le nombre de ventes (bleu clair) */
-    .sales {
+    .sales_data {
       color: lightblue;
       font-weight: bold;
     }
@@ -107,7 +107,7 @@
     }
 
     /* Mot "vente(s)" en bleu ciel */
-    .sales-word {
+    .sales_word {
       color: lightblue;
       font-weight: bold;
     }
@@ -122,21 +122,21 @@
   <div class="container">
     <h2>Impossible n'est pas Quevillais</h2>
     <div id="buttons">
-      <button onclick="validateSale('Julien')">Julien</button>
-      <button onclick="validateSale('Thomas')">Thomas</button>
-      <button onclick="validateSale('Laetitia')">Laetitia</button>
-      <button onclick="validateSale('Charles')">Charles</button>
-      <button onclick="validateSale('Mehdi')">Mehdi</button>
-      <button onclick="validateSale('Guillaume')">Guillaume</button>
-      <button onclick="validateSale('Oussama')">Oussama</button>
-      <button onclick="validateSale('Timothee')">Timothée</button>
+      <button onclick="validateSaleData('Julien')">Julien</button>
+      <button onclick="validateSaleData('Thomas')">Thomas</button>
+      <button onclick="validateSaleData('Laetitia')">Laetitia</button>
+      <button onclick="validateSaleData('Charles')">Charles</button>
+      <button onclick="validateSaleData('Mehdi')">Mehdi</button>
+      <button onclick="validateSaleData('Guillaume')">Guillaume</button>
+      <button onclick="validateSaleData('Oussama')">Oussama</button>
+      <button onclick="validateSaleData('Timothee')">Timothée</button>
     </div>
 
     <h2>Classement des Vente(s) / Migration(s)</h2>
     <ul id="ranking-list"></ul>
 
     <h2>Options</h2>
-    <button onclick="resetSales()">Réinitialiser les ventes / migration(s)</button>
+    <button onclick="resetSalesData()">Réinitialiser les ventes / migration(s)</button>
   </div>
 
   <footer>
@@ -145,7 +145,7 @@
 
   <script>
     // Charger les données des ventes depuis localStorage (si elles existent)
-    let salesData = JSON.parse(localStorage.getItem('salesData')) || {
+    let sales_data = JSON.parse(localStorage.getItem('sales_data')) || {
       "Julien": 0,
       "Thomas": 0,
       "Laetitia": 0,
@@ -157,23 +157,23 @@
     };
 
     // Fonction pour valider une vente et mettre à jour le classement
-    function validateSale(member) {
-        salesData[member]++;
-        localStorage.setItem('salesData', JSON.stringify(salesData));
+    function validateSaleData(member) {
+        sales_data[member]++;
+        localStorage.setItem('sales_data', JSON.stringify(sales_data));
         showSaleAnimation(member);
-        let sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
-        updateRanking(sortedSales);
+        let sortedSalesData = Object.entries(sales_data).sort((a, b) => b[1] - a[1]);
+        updateRanking(sortedSalesData);
     }
 
     // Fonction pour mettre à jour le classement
-    function updateRanking(sortedSales) {
+    function updateRanking(sortedSalesData) {
         const rankingList = document.getElementById("ranking-list");
         rankingList.innerHTML = "";
-        sortedSales.forEach(([member, sales]) => {
+        sortedSalesData.forEach(([member, sales]) => {
             const gain = calculateGain(sales);
             const listItem = document.createElement("li");
             listItem.innerHTML = `<div class="column">${member}</div>
-                                  <div class="column"><span class="sales">${sales}</span> <span class="sales-word">vente(s)</span></div>
+                                  <div class="column"><span class="sales_data">${sales}</span> <span class="sales_word">vente(s)</span></div>
                                   <div class="column"><span class="gain">${gain}€</span></div>`;
             rankingList.appendChild(listItem);
         });
@@ -191,13 +191,13 @@
     }
 
     // Fonction pour réinitialiser les ventes
-    function resetSales() {
+    function resetSalesData() {
         if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les ventes ?')) {
-            for (let member in salesData) {
-                salesData[member] = 0;
+            for (let member in sales_data) {
+                sales_data[member] = 0;
             }
-            localStorage.setItem('salesData', JSON.stringify(salesData));
-            updateRanking(Object.entries(salesData).sort((a, b) => b[1] - a[1]));
+            localStorage.setItem('sales_data', JSON.stringify(sales_data));
+            updateRanking(Object.entries(sales_data).sort((a, b) => b[1] - a[1]));
         }
     }
 
@@ -214,8 +214,8 @@
 
     // Initialiser le classement dès le chargement de la page
     window.onload = function() {
-        let sortedSales = Object.entries(salesData).sort((a, b) => b[1] - a[1]);
-        updateRanking(sortedSales);
+        let sortedSalesData = Object.entries(sales_data).sort((a, b) => b[1] - a[1]);
+        updateRanking(sortedSalesData);
     };
   </script>
 </body>

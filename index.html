@@ -13,7 +13,7 @@
       margin: 0;
       padding: 0;
     }
-  
+
     header {
       text-align: center;
       padding: 20px;
@@ -24,7 +24,7 @@
     h1 {
       color: gold;
     }
-  
+
     button {
       background-color: #444;
       color: white;
@@ -34,16 +34,16 @@
       cursor: pointer;
       margin: 5px;
     }
-  
+
     button:hover {
       background-color: #666;
     }
 
     /* Nouveau style pour le bouton Reset en rouge */
-    button[onclick="resetSalesData()"] {
+    #reset-button {
       background-color: red;
     }
-  
+
     .container {
       display: flex;
       flex-direction: column;
@@ -124,21 +124,21 @@
   <div class="container">
     <h2>Impossible n'est pas Quevillais</h2>
     <div id="buttons">
-      <button onclick="validateSaleData('Julien')">Julien</button>
-      <button onclick="validateSaleData('Thomas')">Thomas</button>
-      <button onclick="validateSaleData('Laetitia')">Laetitia</button>
-      <button onclick="validateSaleData('Charles')">Charles</button>
-      <button onclick="validateSaleData('Mehdi')">Mehdi</button>
-      <button onclick="validateSaleData('Guillaume')">Guillaume</button>
-      <button onclick="validateSaleData('Oussama')">Oussama</button>
-      <button onclick="validateSaleData('Timothee')">Timothée</button>
+      <button data-member="Julien">Julien</button>
+      <button data-member="Thomas">Thomas</button>
+      <button data-member="Laetitia">Laetitia</button>
+      <button data-member="Charles">Charles</button>
+      <button data-member="Mehdi">Mehdi</button>
+      <button data-member="Guillaume">Guillaume</button>
+      <button data-member="Oussama">Oussama</button>
+      <button data-member="Timothee">Timothée</button>
     </div>
 
     <h2>Classement des Vente(s) / Migration(s)</h2>
-    <ul id="ranking-list"></ul>
+    <ul id="ranking-list" aria-live="polite"></ul>
 
     <h2>Options</h2>
-    <button onclick="resetSalesData()">Réinitialiser les ventes / migration(s)</button>
+    <button id="reset-button">Réinitialiser les ventes / migration(s)</button>
   </div>
 
   <footer>
@@ -158,71 +158,81 @@
       "Timothee": 0
     };
 
+    // Ajouter des écouteurs d'événements pour les boutons
+    document.querySelectorAll('#buttons button').forEach(button => {
+      button.addEventListener('click', function() {
+        validateSaleData(this.getAttribute('data-member'));
+      });
+    });
+
+    // Ajouter un écouteur d'événement pour le bouton de réinitialisation
+    document.getElementById('reset-button').addEventListener('click', resetSalesData);
+
     // Fonction pour valider une vente et mettre à jour le classement
     function validateSaleData(member) {
-        sales_data[member]++;
-        localStorage.setItem('sales_data', JSON.stringify(sales_data));
-        showSaleAnimation(member);
-        let sortedSalesData = Object.entries(sales_data).sort((a, b) => b[1] - a[1]);
-        updateRanking(sortedSalesData);
+      sales_data[member]++;
+      localStorage.setItem('sales_data', JSON.stringify(sales_data));
+      showSaleAnimation(member);
+      let sortedSalesData = Object.entries(sales_data).sort((a, b) => b[1] - a[1]);
+      updateRanking(sortedSalesData);
     }
 
     // Fonction pour mettre à jour le classement
     function updateRanking(sortedSalesData) {
-        const rankingList = document.getElementById("ranking-list");
-        rankingList.innerHTML = "";
-        sortedSalesData.forEach(([member, sales]) => {
-            const gain = calculateGain(sales);
-            const listItem = document.createElement("li");
-            listItem.innerHTML = `<div class="column">${member}</div>
-                                  <div class="column"><span class="sales_data">${sales}</span> <span class="sales_word">vente(s)</span></div>
-                                  <div class="column"><span class="gain">${gain}€</span></div>`;
-            rankingList.appendChild(listItem);
-        });
+      const rankingList = document.getElementById("ranking-list");
+      rankingList.innerHTML = "";
+      sortedSalesData.forEach(([member, sales]) => {
+        const gain = calculateGain(sales);
+        const listItem = document.createElement("li");
+        listItem.innerHTML = `<div class="column">${member}</div>
+                              <div class="column"><span class="sales_data">${sales}</span> <span class="sales_word">vente(s)</span></div>
+                              <div class="column"><span class="gain">${gain}€</span></div>`;
+        rankingList.appendChild(listItem);
+      });
     }
 
     // Fonction pour calculer le gain en fonction du nombre de ventes
     function calculateGain(sales) {
-        if (sales >= 20) {
-            return sales * 5;
-        } else if (sales >= 10) {
-            return sales * 4;
-        } else {
-            return sales * 3;
-        }
+      if (sales >= 20) {
+        return sales * 5;
+      } else if (sales >= 10) {
+        return sales * 4;
+      } else {
+        return sales * 3;
+      }
     }
 
     // Fonction pour réinitialiser les ventes
     function resetSalesData() {
-        if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les ventes ?')) {
-            for (let member in sales_data) {
-                sales_data[member] = 0;
-            }
-            localStorage.setItem('sales_data', JSON.stringify(sales_data));
-            updateRanking(Object.entries(sales_data).sort((a, b) => b[1] - a[1]));
+      if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les ventes ?')) {
+        for (let member in sales_data) {
+          sales_data[member] = 0;
         }
+        localStorage.setItem('sales_data', JSON.stringify(sales_data));
+        updateRanking(Object.entries(sales_data).sort((a, b) => b[1] - a[1]));
+      }
     }
 
     // Fonction pour afficher le pop-up vert avec le prénom
     function showSaleAnimation(member) {
-        const popup = document.createElement("div");
-        popup.classList.add("popup");
-        popup.innerHTML = `
-          <div>Bien joué</div>
-          <div>${member}</div>
-          <div>tu viens de faire</div>
-          <div>une vente !</div>
-        `;
-        popup.onclick = function() {
-            popup.remove();
-        };
-        document.body.appendChild(popup);
+      const popup = document.createElement("div");
+      popup.classList.add("popup");
+      popup.innerHTML = `
+        <div>Bien joué</div>
+        <div>${member}</div>
+        <div>tu viens de faire</div>
+        <div>une vente !</div>
+      `;
+      popup.onclick = function() {
+        popup.remove();
+      };
+      document.body.appendChild(popup);
     }
 
     // Initialiser le classement dès le chargement de la page
     window.onload = function() {
-        let sortedSalesData = Object.entries(sales_data).sort((a, b) => b[1] - a[1]);
-        updateRanking(sortedSalesData);
+      let sortedSalesData = Object.entries(sales_data).sort((a, b) => b[1] - a[1]);
+      updateRanking(sortedSalesData);
     };
   </script>
 </body>
